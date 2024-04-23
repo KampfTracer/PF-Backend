@@ -2,19 +2,18 @@ import { chatsModel } from "../dao/models/chatsModel.js";
 
 export class ChatDAO{
     constructor(){}
-    async saveMessage(datos){
+    async saveMessage(datos) {
         try {
-            
-            let userInCollection = await chatsModel.findOne({user: datos.user}) 
-            if(userInCollection){
-                userInCollection.message.push(datos.message)
-                await chatsModel.updateOne({user: datos.user}, {message: userInCollection.message})
-                return datos
+            let userInCollection = await chatsModel.findOne({ user: datos.user });
+            if (userInCollection) {
+                await chatsModel.updateOne({ user: datos.user }, { $push: { message: datos.message } });
+            } else {
+                await chatsModel.create({ user: datos.user, message: [datos.message] });
             }
-            await chatsModel.create({ user: datos.user, message: [datos.message] });
-            return datos
+            return datos;
         } catch (error) {
-            return null
-        }
+            console.error("Error saving message:", error);
+            return null;
         }
     }
+ }    

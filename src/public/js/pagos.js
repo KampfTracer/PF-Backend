@@ -1,6 +1,6 @@
 
 const resFetch = document.getElementById("resFetch");
-const stripe=Stripe("pk_test_51P32hmBY9ZWDmWHr6tz4CAhWaIxQEuw6ZC1uuhjT0B9IcN3AbZzWdV6wZKnq1fW91fUaMAqsIHJed9RPvqyYsKNu00UER7FhZD")
+const stripe=Stripe("pk_test_51P8ZHeGuM1O79CZTP0OEDPejsjszUIdimIJnTuBHQ73BnYFLU3yMguIcBoWLVtjd4lv1Y9YPL9XyGxTlfvQDETxl00aa4UUeew")
 let elements
 let ticketId
 const cargarMediosPago=async()=>{

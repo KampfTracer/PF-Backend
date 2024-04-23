@@ -3,140 +3,49 @@ paths:
     get:
       security:
         - cookieAuth: []
-      summary: Obtener y listar todos los productos de la base de datos, implementando paginación.
+      summary: Obtener y listar todos los productos de la base de datos, implementando paginación, filtrado y ordenamiento.
       tags: 
         - Products
-      responses:
-        "200":
-          description: Éxito al recuperar productos.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Products'
-        "404":
-          description: Error al recuperar productos.
-        "500":
-          description: Error interno del servidor.
-  /products?page:
-    get:
-      security:
-        - cookieAuth: []
       parameters:
-          - in: query
-            name: page
-            schema:
-              type: number
-            description: numero de pagina
-      summary: Obtener y listar todos los productos de la base de datos, implementando paginación.
-      tags: 
-        - Products
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Número de página para paginación.
+        - in: query
+          name: disp
+          schema:
+            type: string
+          description: Filtrar por disponibilidad (true/false).
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Número máximo de productos a listar.
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Ordenar por precio ascendente (asc) o descendente (desc).
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Filtrar por categoría de producto.
       responses:
         "200":
           description: Éxito al recuperar productos.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Products'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Products'
         "404":
-          description: Error al recuperar productos.
+          description: No se encontraron productos que coincidan con los criterios.
         "500":
           description: Error interno del servidor.
-  /products?disp:
-    get:
-      security:
-        - cookieAuth: []
-      parameters:
-          - in: query
-            name: disp
-            schema:
-              type: string
-            description: validacion por status
-      summary: Obtener y listar todos los productos de la base de datos, implementando validacion por status.
-      tags: 
-        - Products
-      responses:
-        "200":
-          description: Éxito al recuperar productos.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Products'
-        "404":
-          description: Error al recuperar productos.
-        "500":
-          description: Error interno del servidor.
-  /products?limit:
-    get:
-      security:
-        - cookieAuth: []
-      parameters:
-          - in: query
-            name: limit
-            schema:
-              type: number
-            description: numero limit de listado
-      summary: Obtener y listar todos los productos de la base de datos, implementando un limite.
-      tags: 
-        - Products
-      responses:
-        "200":
-          description: Éxito al recuperar productos.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Products'
-        "404":
-          description: Error al recuperar productos.
-        "500":
-          description: Error interno del servidor.
-  /products?sort:
-    get:
-      security:
-        - cookieAuth: []
-      parameters:
-          - in: query
-            name: sort
-            schema:
-              type: number
-            description: ordena segun precio
-      summary: Obtener y listar todos los productos de la base de datos, implementando un reordenamiento segun precio.
-      tags: 
-        - Products
-      responses:
-        "200":
-          description: Éxito al recuperar productos.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Products'
-        "404":
-          description: Error al recuperar productos.
-        "500":
-          description: Error interno del servidor.
-  /products?category:
-    get:
-      security:
-        - cookieAuth: []
-      parameters:
-          - in: query
-            name: category
-            schema:
-              type: string
-            description: categoria
-      summary: Obtener y listar todos los productos de la base de datos, implementando un filtro por category.
-      tags: 
-        - Products
-      responses:
-        "200":
-          description: Éxito al recuperar productos.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Products'
-        "404":
-          description: Error al recuperar productos.
-        "500":
-          description: Error interno del servidor.
+
   /products/{prodId}:
     get:
       security:
@@ -162,6 +71,7 @@ paths:
           description: ID incorrecto o no se encontró el producto.
         "500":
           description: Error interno del servidor.
+
   /api/products:
     post:
       security:
@@ -179,16 +89,10 @@ paths:
         "201":
           description: Éxito al crear el producto.
         "403":
-          description: Error al crear el producto.
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: '#components/schemas/error1'
-                  - $ref: '#components/schemas/error3'
-                  - $ref: '#components/schemas/error2'
+          description: Error al crear el producto debido a datos incompletos o inválidos.
         "500":
           description: Error interno del servidor.
+
   /api/products/{prodId}:
     put:
       security:
@@ -214,15 +118,9 @@ paths:
           description: Éxito al modificar el producto.
         "400":
           description: ID incorrecto o no se encontró el producto.
-          content: 
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: '#components/schemas/error4'
-                  - $ref: '#components/schemas/error5'
-                  - $ref: '#components/schemas/error6'
         "500":
           description: Error interno del servidor.
+
     delete:
       security:
         - cookieAuth: []
@@ -234,6 +132,7 @@ paths:
           in: path
           required: true
           description: ID del producto a eliminar.
+
           schema:
             type: string
       responses:

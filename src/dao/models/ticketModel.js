@@ -8,9 +8,8 @@ const ticketSchema = new mongoose.Schema(
     },
     {
         timestamps: {
-            updatedAt:
-                'DateUltimateMod',
-            createdAt: 'DateOn'
+            createdAt: 'DateOn',
+            updatedAt: 'DateUltimateMod'
         }
     },
     {

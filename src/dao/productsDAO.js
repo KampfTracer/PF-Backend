@@ -3,16 +3,17 @@ import { productsModel } from "./models/productsModel.js";
 export class ProductsDAO {
   async getProducts(limit, page, category, sort, disp) {
     try {
-      let query;
+      let query = { status: true };
 
       if (disp !== undefined) {
-        query = { status: Boolean(disp) };
+        query.status = Boolean(disp);
       }
 
       if (category) {
         query.category = category;
       }
-      let options = {
+
+      const options = {
         lean: true,
         page: page || 1,
         limit: limit || 10,
@@ -22,97 +23,61 @@ export class ProductsDAO {
         options.sort = { price: sort };
       }
 
-      let products = await productsModel.paginate(query, options)
-      return products;
+      return await productsModel.paginate(query, options);
     } catch (error) {
+      console.error("Error getting products:", error);
       return [];
     }
   }
 
-
   async getProductById(id) {
-    let getProduct;
     try {
-      getProduct = await productsModel.findOne({ status: true, _id: id });
-      return getProduct;
+      return await productsModel.findOne({ status: true, _id: id });
     } catch (error) {
+      console.error("Error getting product by ID:", error);
       return null;
     }
   }
 
-
-  async createProduct(
-    title,
-    description,
-    code,
-    price,
-    stock,
-    category,
-    thumbnail,
-    owner
-  ) {
+  async createProduct(title, description, code, price, stock, category, thumbnail, owner) {
     try {
-      let newProduct = await productsModel.create({
-        title: title,
-        description: description,
-        code: code,
+      return await productsModel.create({
+        title,
+        description,
+        code,
         price: Number(price),
         stock: Number(stock),
-        category: category,
-        thumbnail: thumbnail,
-        owner: owner
+        category,
+        thumbnail,
+        owner,
+        status: true,
       });
-      return newProduct;
     } catch (error) {
+      console.error("Error creating product:", error);
       return null;
     }
   }
-
 
   async updateProduct(id, body) {
     try {
-      const existingProduct = await productsModel.findOne({
-        status: true,
-        _id: id,
-      });
-      if (!existingProduct) {
-        return null;
-      }
-
-      const updatedProduct = await productsModel.updateOne(
-        { _id: id },
-        { $set: body }
-      );
-
-      if (updatedProduct.modifiedCount > 0) {
-        return updatedProduct;
-      } else {
-        return null;
-      }
+      return await productsModel.updateOne({ _id: id, status: true }, { $set: body });
     } catch (error) {
+      console.error("Error updating product:", error);
       return null;
     }
   }
 
   async deleteProduct(id) {
-    let getProduct;
     try {
-      getProduct = await productsModel.findOne({ status: true, _id: id });
-
-      let prodDeleted;
-      try {
-        prodDeleted = await productsModel.updateOne(getProduct, {
-          $set: { status: false },
-        });
-        if (prodDeleted.modifiedCount > 0) {
-          return prodDeleted;
-        }
-      } catch (error) {
+      const existingProduct = await productsModel.findOne({ status: true, _id: id });
+      if (!existingProduct) {
         return null;
       }
+
+      return await productsModel.updateOne({ _id: id }, { $set: { status: false } });
     } catch (error) {
+      console.error("Error deleting product:", error);
       return null;
     }
   }
-
 }

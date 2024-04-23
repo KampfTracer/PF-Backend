@@ -41,13 +41,12 @@ const transportFilePROD = new winston.transports.File({
 });
 
 
-if (config.MODE === 'developments') {
+if (config.MODE === 'development') {
   logger.add(transportConsoleDEV);
 } else if (config.MODE === 'production') {
   logger.add(transportConsolePROD);
   logger.add(transportFilePROD);
 }
-
 
 export const middleLogg = (req, res, next) => {
   req.logger = logger;

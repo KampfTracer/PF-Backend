@@ -6,10 +6,10 @@ dotenv.config({
 })
 
 export const config = {
-    PORT: process.env.PORT || 3000,
+    PORT: process.env.PORT || 8080,
     MONGO_URL: process.env.MONGO_URL,
     TOKENKEY: process.env.TOKENKEY,
-    MODE: process.env.MODE || 'developments',
+    MODE: process.env.MODE || 'development',
     EADMIN: process.env.EADMIN,
     PADMIN: process.env.PADMIN,
     clientID: process.env.clientID,
