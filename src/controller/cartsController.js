@@ -63,7 +63,7 @@ export class CartsController {
       if (valid) {
         return res.status(404).json({
           error: 'ID INVALIDO'
-        })
+        });
       }
       let { pid } = req.params;
       let validpid = idValid(pid, res);
@@ -90,16 +90,25 @@ export class CartsController {
       let cartMod = await cartsService.addProductInCart(cid, product);
       if (!cartMod) {
         return res.status(500).json({
-          error:
-            'Error al agregar producto al carrito',
+          error: 'Error al agregar producto al carrito',
         });
       }
-      return res.status(200).json({ cartMod });
+
+      // Calcular el monto total del carrito actualizado
+      let updatedCart = await cartsService.getCartById(cid);
+      if (!updatedCart) {
+        return res.status(500).json({
+          error: 'Error al obtener carrito actualizado',
+        });
+      }
+
+      let total = updatedCart.products.reduce((acc, prod) => acc + (prod.product.price * prod.quantity), 0).toFixed(2);
+
+      return res.status(200).json({ cartMod, total });
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
   }
-
 
   static async createCart(req, res) {
     try {
@@ -277,12 +286,17 @@ export class CartsController {
 
       const total = prodOK.reduce((acc, prod) => acc + parseFloat(prod.subtotal), 0).toFixed(2);
 
-      return res.status(200).json({total: total})
+      // Envío del correo electrónico
+      const to = req.user.email;
+      const subject = 'Ticket de Compra';
+      const message = `Número de Ticket: ${v4()}\nImporte Total: ${total}\nFecha: ${new Date().toDateString()}`;
+      await sendMail(to, subject, message);
+
+      // Actualización de la respuesta para incluir el total
+      return res.status(200).json({ total: total });
 
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
   }
-
-
 }

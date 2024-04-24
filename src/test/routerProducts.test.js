@@ -1,77 +1,68 @@
-import {
-  describe,
-  it
-} from "mocha";
-import {
-  expect
-} from "chai";
-import supertest from "supertest";
-import mongoose from "mongoose";
-import {
-  config
-} from "../config/config.js";
-import {
-  v4
-} from "uuid";
-import {
-  genToken
-} from "../utils.js";
+const mocha = require("mocha");
+const chai = require("chai");
+const supertest = require("supertest");
+const mongoose = require("mongoose");
+const config = require("../config/config.js");
+const { v4 } = require("uuid");
+const { genToken } = require("../utils.js");
 
 const requester = supertest("http://localhost:8080");
+const describe = mocha.describe;
+const it = mocha.it;
 
 describe("PRUEBA ROUTER DE PRODUCTS", async function () {
-  this.timeout(5000);
+    this.timeout(5000);
 
-  let user = {
-    first_name: "Franc",
-    last_name: "Aguilera TEST",
-    edad: 27,
-    email: "Coder@test.com",
-    rol: "premium",
-    password: "Prueba1234",
-  };
-  let token = genToken(user);
-  let productId;
+    let user = {
+        first_name: "Franc",
+        last_name: "Aguilera TEST",
+        edad: 27,
+        email: "Coder@test.com",
+        rol: "premium",
+        password: "Prueba1234",
+    };
+    let token = genToken(user);
+    let productId;
 
-  before(async () => {
-    try {
-      await mongoose.connect(config.MONGO_URL);
-      console.log("BD Online");
+    before(async () => {
+        try {
+            await mongoose.connect(config.MONGO_URL);
+            console.log("BD Online");
 
-      let product = {
-        title: "PRODUCT TESTING SUPERTEST",
-        description: "test",
-        code: "testPUT",
-        price: 22,
-        stock: 22,
-        category: "test",
-      };
-      let response = await requester
-        .post("/api/products")
-        .send(product)
-        .set("Cookie", `CookieUser=${token}`);
-      productId = response.body.confirmCreateProduct._id;
-    } catch (error) {
-      console.log(error.message);
-    }
-  });
-
-  after(async () => {
-    await mongoose.connection
-      .collection("products")
-      .deleteMany({
-        category: "test"
-      });
-  });
-
-  describe("Prueba Router products", async function () {
-    it('Prueba endpoint GET /products. => Renderiza vista "ViewProducts", junto con un objeto que contiene: error, user, array de productos (10), componentes de paginacion', async function () {
-      let respuesta = await requester
-        .get("/products")
-        .set("Cookie", `CookieUser=${token}`);
-      expect(respuesta.statusCode).to.be.equal(200);
-      expect(respuesta.ok).to.be.true;
+            let product = {
+                title: "PRODUCT TESTING SUPERTEST",
+                description: "test",
+                code: "testPUT",
+                price: 22,
+                stock: 22,
+                category: "test",
+            };
+            let response = await requester
+                .post("/api/products")
+                .send(product)
+                .set("Cookie", `CookieUser=${token}`);
+            productId = response.body.confirmCreateProduct._id;
+        } catch (error) {
+            console.log(error.message);
+        }
     });
+
+    after(async () => {
+        await mongoose.connection
+            .collection("products")
+            .deleteMany({
+                category: "test"
+            });
+    });
+
+    describe("Prueba Router products", async function () {
+        it('Prueba endpoint GET /products. => Renderiza vista "ViewProducts", junto con un objeto que contiene: error, user, array de productos (10), componentes de paginacion', async function () {
+            let respuesta = await requester
+                .get("/products")
+                .set("Cookie", `CookieUser=${token}`);
+            chai.expect(respuesta.statusCode).to.be.equal(200);
+            chai.expect(respuesta.ok).to.be.true;
+        });
 
     it('Prueba endpoint GET /products/:id  => Renderiza vista "ViewDetailProducts", junto con un objeto que contiene: el producto', async function () {
       let id = productId; 

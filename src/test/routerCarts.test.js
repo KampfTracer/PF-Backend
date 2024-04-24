@@ -1,78 +1,69 @@
-import {
-  describe,
-  it,
-  before
-} from "mocha";
-import {
-  expect
-} from "chai";
-import supertest from "supertest";
-import mongoose from "mongoose";
-import {
-  config
-} from "../config/config.js";
-import {
-  genToken
-} from "../utils.js";
+const mocha = require("mocha");
+const chai = require("chai");
+const supertest = require("supertest");
+const mongoose = require("mongoose");
+const config = require("../config/config.js");
+const { genToken } = require("../utils.js");
 
 const requester = supertest("http://localhost:8080");
+const describe = mocha.describe;
+const it = mocha.it;
 
 describe('TESTING A ROUTER DE CARTS', async function () {
-  this.timeout(5000);
-  let user = {
-    first_name: "Fran",
-    last_name: "Aguilera TEST",
-    age: 27,
-    email: "Coder@test.com",
-    password: "Prueba1234",
-    rol: "premium",
-  };
+    this.timeout(5000);
+    let user = {
+        first_name: "Fran",
+        last_name: "Aguilera TEST",
+        age: 27,
+        email: "Coder@test.com",
+        password: "Prueba1234",
+        rol: "premium",
+    };
 
-  let token
-  let productId;
-  let cartId
+    let token;
+    let productId;
+    let cartId;
 
-  before(async function () {
-    try {
-      await mongoose.connect(config.MONGO_URL);
-    } catch (error) {
-    }
+    before(async function () {
+        try {
+            await mongoose.connect(config.MONGO_URL);
+        } catch (error) {
+        }
 
-    await requester.post('/api/sessions/registro').send({
-      ...user
+        await requester.post('/api/sessions/registro').send({
+            ...user
+        });
+        token = await genToken(user);
+        let resUser = await requester.post(`/user`).send({
+            email: user.email
+        }).set("Cookie", `CookieUser=${token}`);
+        cartId = resUser.body.user.cart._id;
     });
-    token = await genToken(user)
-    let resUser = await requester.post(`/user`).send({
-        email: user.email
-      })
-      .set("Cookie", `CookieUser=${token}`);
-    cartId = resUser.body.user.cart._id
-  });
 
-  after(async () => {
-    await mongoose.connection
-      .collection("users")
-      .deleteMany({
-        email: "Coder@test.com"
-      });
-    await mongoose.connection
-      .collection("carts")
-      .deleteMany({
-        title: "Carrito Supertest MODIFICADO TEST"
-      });
-    await mongoose.connection
-      .collection("carts")
-      .deleteMany({
-        title: "Carrito Supertest"
-      });
-  });
+    after(async () => {
+        await mongoose.connection
+            .collection("users")
+            .deleteMany({
+                email: "Coder@test.com"
+            });
+        await mongoose.connection
+            .collection("carts")
+            .deleteMany({
+                title: "Carrito Supertest MODIFICADO TEST"
+            });
+        await mongoose.connection
+            .collection("carts")
+            .deleteMany({
+                title: "Carrito Supertest"
+            });
+    });
 
-  describe("Prueba Router carts", async function () {
-    it('Pueba endpoint GET a /carts => Entra a BD y devuelve una vista que muestra todos los carritos recuperados', async function () {
-      let respuesta = await requester.get('/carts').set("Cookie", `CookieUser=${token}`)
-      expect(respuesta.statusCode).to.be.equal(200)
-      expect(respuesta.ok).to.be.true
-    })
+    describe("Prueba Router carts", async function () {
+        it('Pueba endpoint GET a /carts => Entra a BD y devuelve una vista que muestra todos los carritos recuperados', async function () {
+            let respuesta = await requester.get('/carts').set("Cookie", `CookieUser=${token}`);
+            chai.expect(respuesta.statusCode).to.be.equal(200);
+            chai.expect(respuesta.ok).to.be.true;
+        });
 
     it('Prueba endpoint GET /carts/:id => Recupera un carrito mediante id que llega por params, devuelve una vista del detalle del carrito', async function () {
       let id = "65bea34e1737d7efae6582f1";

@@ -29,7 +29,7 @@ const options = {
   definition:{
     openapi: "3.0.0",
     info:{
-      title: "Documentacion API (Lovera)",
+      title: "Documentacion API Aguilera",
       version: "1.0.0",
       description: "Documentacion de API utilizada en este eccomerce-. Cuenta con Apartado de productos, carritos, chat en tiempo real, Sistema de registro y jerarquia de usuarios-."
     }
